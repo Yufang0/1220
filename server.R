@@ -1,18 +1,20 @@
+#1220_1
 library(shiny)
 
-shinyUI(pageWithSidebar(
+shinyServer(function(input, output) {
   
-  headerPanel("Summarize your data"), 
+  output$summary = renderPrint({
+    if (is.null(input$files)==TRUE) {return("You have to up load your data!!!")} else {
+      dat = read.table(input$files$datapath, header = TRUE)
+      summary(dat)                     
+    }        
+  })
   
-  sidebarPanel(
-    fileInput(inputId="files", label=h4("Upload your data file:"), multiple=FALSE, accept="text/plain"),
-    helpText("Note: you only can upload the .txt file."),
-    sliderInput("n", h4("Select the observed rows:"), min=5, max=20, value=10)
-  ),
+  output$view = renderTable({
+    if (is.null(input$files)==TRUE) {return()} else {
+      dat = read.table(input$files$datapath, header = TRUE)
+      head(dat, input$n)                     
+    }        
+  })
   
-  mainPanel(
-    verbatimTextOutput("summary"),  
-    tableOutput("view")  
-  )  
-  
-))
+})
